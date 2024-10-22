@@ -19,41 +19,29 @@ export class PostsService {
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
-    //Create metaOptions
-    let metaOptions = createPostDto.metaOptions
-      ? this.metaOptionsRepository.create(createPostDto.metaOptions)
-      : null;
-
-    if (metaOptions) {
-      await this.metaOptionsRepository.save(metaOptions);
-    }
-
     // Create post
     let post = this.postsRepository.create(createPostDto);
-
-    // Add metaOptions to the post
-    if (metaOptions) {
-      post.metaOptions = metaOptions;
-    }
-
+    console.log('hihi');
     return await this.postsRepository.save(post);
   }
 
-  public findAll(userId: string) {
+  public async findAll(userId: string) {
     // Users Service 필요
     // Find A User
     const user = this.usersService.findOneById(userId);
-    return [
-      {
-        user: user,
-        title: 'kurong',
-        content: '크롱이 사랑해',
-      },
-      {
-        user: user,
-        title: '안녕',
-        content: '안녀러럴럴ㅇ',
-      },
-    ];
+
+    const posts = await this.postsRepository.find();
+    return posts;
+  }
+
+  public async delete(id: number) {
+    // 삭제할 post 찾기
+    let post = await this.postsRepository.findOneBy({ id }); // id:id 생략가능
+    // post 삭제
+    await this.postsRepository.delete(id);
+    // meta_options 삭제
+    await this.metaOptionsRepository.delete(post.metaOptions.id);
+    // 결과
+    return { deleted: true, id };
   }
 }
