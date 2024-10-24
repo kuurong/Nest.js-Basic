@@ -4,10 +4,15 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { postType } from './enums/postType.enum';
 import { postStatus } from './enums/postStatus.enum';
 import { MetaOption } from 'src/meta-options/meta-option.entity';
+import { User } from 'src/users/user.entity';
+import { Tag } from 'src/tags/tag.entity';
 
 @Entity()
 export class Post {
@@ -70,13 +75,15 @@ export class Post {
   })
   publishOn?: Date;
 
-  @OneToOne(() => MetaOption, {
+  @OneToOne(() => MetaOption, (metaOptions) => metaOptions.post, {
     cascade: true,
-    eager: true,
   })
-  @JoinColumn()
   metaOptions?: MetaOption;
 
-  //relationship sections
-  tags?: string[];
+  @ManyToOne(() => User, (user) => user.posts) // foreign key 존재
+  author: User;
+
+  @ManyToMany(() => Tag)
+  @JoinTable()
+  tags?: Tag[];
 }

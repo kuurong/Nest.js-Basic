@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  IsInt,
   Matches,
   MaxLength,
   MinLength,
@@ -77,12 +78,14 @@ export class CreatePostDto {
   @IsOptional()
   publishOn?: Date;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    description: 'Array of id of tags',
+    example: [1, 2],
+  })
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
-  @MinLength(3, { each: true }) //array 안 string의 최소length
-  tags?: string[];
+  @IsInt({ each: true })
+  tags?: number[];
 
   @ApiPropertyOptional({
     type: 'object',
@@ -102,4 +105,13 @@ export class CreatePostDto {
   @Type(() => CreatePostMetaOptionsDto) //validation을 complete 하기위해매우중요
   //nested DTO를 사용할때는 @ValidateNested,@Type 항상둘다사용
   metaOptions?: CreatePostMetaOptionsDto | null;
+
+  @ApiProperty({
+    type: 'integer',
+    required: true,
+    example: 1,
+  })
+  @IsNotEmpty()
+  @IsInt()
+  authorId: number;
 }

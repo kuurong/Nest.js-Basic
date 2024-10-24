@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -25,6 +26,9 @@ export class MetaOption {
   @UpdateDateColumn()
   updateDate: Date;
 
-  @OneToOne(() => Post, (post) => post.metaOptions)
+  @OneToOne(() => Post, (post) => post.metaOptions, {
+    onDelete: 'CASCADE', //post가 지워지면 메타옵션도 지워진다.
+  })
+  @JoinColumn()
   post: Post;
 }

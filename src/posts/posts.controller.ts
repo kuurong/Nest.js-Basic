@@ -23,7 +23,7 @@ export class PostsController {
   ) {}
 
   @Get('/:userId?') // GET posts/:userId
-  public getPosts(@Param('userId') userId: string) {
+  public getPosts(@Param('userId') userId: number) {
     return this.postsService.findAll(userId);
   }
 
@@ -48,7 +48,7 @@ export class PostsController {
   })
   @Patch()
   public updatePost(@Body() patchPostDto: PatchPostDto) {
-    console.log(patchPostDto);
+    return this.postsService.update(patchPostDto);
   }
 
   @Delete()
