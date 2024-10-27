@@ -26,4 +26,31 @@ export class TagsService {
 
     return results;
   }
+
+  public async delete(id: number) {
+    await this.tagsRepository.delete(id);
+
+    return {
+      deleted: true,
+      id,
+    };
+  }
+
+  public async softDelete(id: number) {
+    await this.tagsRepository.softDelete(id);
+
+    return {
+      deleted: true,
+      id,
+    };
+  }
+
+  public async findAll() {
+    const tags = await this.tagsRepository.find({
+      relations: {
+        posts: true,
+      },
+    });
+    return tags;
+  }
 }

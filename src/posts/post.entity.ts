@@ -83,7 +83,7 @@ export class Post {
   @ManyToOne(() => User, (user) => user.posts) // foreign key 존재
   author: User;
 
-  @ManyToMany(() => Tag)
+  @ManyToMany(() => Tag, (tag) => tag.posts)
   @JoinTable()
   tags?: Tag[];
 }

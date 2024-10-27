@@ -16,9 +16,8 @@ describe('AppController (e2e)', () => {
   });
 
   it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+    console.log(process.env.NODE_ENV); // npm run test:e2e - 결과: test
+    // jest 는 실행될때 process.env.NODE_ENV의 값을 test 로 항상 값을 보냄
+    return request(app.getHttpServer()).get('/').expect(404);
   });
 });

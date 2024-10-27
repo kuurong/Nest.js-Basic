@@ -2,7 +2,7 @@ POST http://localhost:3000/tags
 Content-Type: application/json
 
 {
-    "name":"cutie",
-    "slug":"cutie",
-    "description":"All posts about cutieee"
+    "name":"five",
+    "slug":"five",
+    "description":"All posts about five"
 }
