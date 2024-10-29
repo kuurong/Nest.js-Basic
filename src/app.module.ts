@@ -9,7 +9,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TagsModule } from './tags/tags.module';
 import { MetaOptionsModule } from './meta-options/meta-options.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { appConfig } from './config/app.config';
+//import { appConfig } from './config/app.config';
+import appConfig from './config/app.config'; //default로 export 하므로 {}없애도됨
+import databaseConfig from './config/db.config';
+import envValidation from './config/env.validation';
 
 const ENV = process.env.NODE_ENV;
 
@@ -22,7 +25,8 @@ const ENV = process.env.NODE_ENV;
       isGlobal: true,
       // envFilePath:['.env.development']
       envFilePath: !ENV ? '.env' : `.env.${ENV}`,
-      load: [appConfig],
+      load: [appConfig, databaseConfig],
+      validationSchema: envValidation,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
