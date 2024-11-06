@@ -1,4 +1,10 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  forwardRef,
+  RequestTimeoutException,
+  BadRequestException,
+} from '@nestjs/common';
 import { GetUsersParamDto } from '../dtos/getUsersParam.dto';
 import { AuthService } from 'src/auth/providers/auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -28,9 +34,25 @@ export class UsersService {
   ) {}
 
   public async createUser(createUserDto: CreateUserDto) {
-    const existingUser = await this.usersRepository.findOne({
-      where: { email: createUserDto.email },
-    });
+    let existingUser = undefined;
+
+    try {
+      existingUser = await this.usersRepository.findOne({
+        where: { email: createUserDto.email },
+      });
+    } catch (error) {
+      //어떤 이유로 db 연결 실패할경우 statusCode: 408
+      throw new RequestTimeoutException('Unable to process', {
+        description: 'Error connecting to the DB',
+      });
+    }
+
+    // Handle exception
+    if (existingUser) {
+      throw new BadRequestException('이미 유저가 존재해요');
+
+      //statusCode: 400
+    }
 
     let newUser = this.usersRepository.create(createUserDto);
     newUser = await this.usersRepository.save(newUser);
