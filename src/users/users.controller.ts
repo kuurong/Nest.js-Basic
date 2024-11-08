@@ -6,11 +6,8 @@ import {
   Post,
   Query,
   Patch,
-  Headers,
-  Ip,
   ParseIntPipe,
   DefaultValuePipe,
-  ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { GetUsersParamDto } from './dtos/getUsersParam.dto';
@@ -68,6 +65,12 @@ export class UsersController {
   @Patch()
   public patchUser(@Body() patchUserDto: PatchUserDto) {
     return patchUserDto;
+  }
+
+  @Get('/test-test')
+  public test() {
+    console.log('hi');
+    return this.usersService.test();
   }
 }
 

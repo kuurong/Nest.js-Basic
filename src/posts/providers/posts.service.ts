@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  RequestTimeoutException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/providers/users.service';
 import { Post } from '../post.entity';
@@ -48,12 +52,36 @@ export class PostsService {
   }
 
   public async update(patchPostDto: PatchPostDto) {
+    let tags = undefined;
+    let post = undefined;
     // Find the Tags
-    let tags = await this.tagsService.findMultipleTags(patchPostDto.tags);
+    try {
+      tags = await this.tagsService.findMultipleTags(patchPostDto.tags);
+    } catch (error) {
+      throw new RequestTimeoutException('db 연동 오류');
+    }
+
+    // Number of tags need to be equal (exeption handling)
+    // what if no tags were found
+    // db에 없는 tag + 있는 tag 일시
+    if (!tags || tags.length! == patchPostDto.tags.length) {
+      throw new BadRequestException(
+        'tags id를 다시 체크하고 유효한 id인지 확인해주세요',
+      );
+    }
+
     // Find the Post
-    let post = await this.postsRepository.findOneBy({
-      id: patchPostDto.id,
-    });
+    try {
+      post = await this.postsRepository.findOneBy({
+        id: patchPostDto.id,
+      });
+    } catch (error) {
+      throw new RequestTimeoutException('db 연동 오류');
+    }
+
+    if (!post) {
+      throw new BadRequestException('post id가 존재하지않아요');
+    }
 
     // Update the properties - TypeORM 에서는 spreadOperator 권장X
     post.title = patchPostDto.title ?? post.title;
@@ -68,7 +96,13 @@ export class PostsService {
     // Update the tags
     post.tags = tags;
 
-    return await this.postsRepository.save(post); //update 할떄도 save 메소드를쓴다.
+    try {
+      await this.postsRepository.save(post); //update 할떄도 save 메소드를쓴다.
+    } catch (error) {
+      throw new RequestTimeoutException('db 연동 오류');
+    }
+
+    return post;
   }
 
   public async delete(id: number) {

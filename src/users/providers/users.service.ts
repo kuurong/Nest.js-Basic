@@ -4,6 +4,8 @@ import {
   forwardRef,
   RequestTimeoutException,
   BadRequestException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { GetUsersParamDto } from '../dtos/getUsersParam.dto';
 import { AuthService } from 'src/auth/providers/auth.service';
@@ -55,7 +57,16 @@ export class UsersService {
     }
 
     let newUser = this.usersRepository.create(createUserDto);
-    newUser = await this.usersRepository.save(newUser);
+    // create 는 db와 interact 하지않아서 exception handling 안해도됨
+
+    try {
+      newUser = await this.usersRepository.save(newUser);
+    } catch (error) {
+      //어떤 이유로 db 연결 실패할경우 statusCode: 408
+      throw new RequestTimeoutException('Unable to process', {
+        description: 'Error connecting to the DB',
+      });
+    }
 
     return newUser;
   }
@@ -94,6 +105,33 @@ export class UsersService {
    */
   public async findOneById(id: number) {
     //async 인 이유? db와 deal 해야하므룽
-    return await this.usersRepository.findOneBy({ id });
+    let user = undefined;
+
+    try {
+      user = await this.usersRepository.findOneBy({ id });
+    } catch (error) {
+      throw new RequestTimeoutException('Unable to process', {
+        description: 'Error connecting to the DB',
+      });
+    }
+
+    if (!user) {
+      throw new BadRequestException('유저가 존재하지않아요');
+    }
+
+    return user;
+  }
+
+  public async test() {
+    throw new HttpException(
+      {
+        status: HttpStatus.MOVED_PERMANENTLY,
+        error: 'The API endpoint does not exist',
+      },
+      HttpStatus.MOVED_PERMANENTLY,
+      {
+        description: 'Occured cuz the endpoint was permanently moved',
+      },
+    );
   }
 }
