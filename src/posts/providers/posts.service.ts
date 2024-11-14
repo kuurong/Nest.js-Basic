@@ -11,6 +11,7 @@ import { MetaOption } from 'src/meta-options/meta-option.entity';
 import { CreatePostDto } from '../dtos/createPost.dto';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDto } from '../dtos/patchPost.dto';
+import { GetPostsDto } from '../dtos/getPosts.dto';
 
 @Injectable()
 export class PostsService {
@@ -40,13 +41,16 @@ export class PostsService {
     return await this.postsRepository.save(post);
   }
 
-  public async findAll(userId: number) {
+  public async findAll(postQuery: GetPostsDto, userId: string) {
     const posts = await this.postsRepository.find({
       relations: {
         metaOptions: true,
-        author: true,
-        tags: true, //이 프로퍼티 이름들은 post 엔티티에서 가져온것.
+        //author: true,
+        //tags: true, //이 프로퍼티 이름들은 post 엔티티에서 가져온것.
       },
+
+      skip: (postQuery.page - 1) * postQuery.limit, //몇개 스킵할건지
+      take: postQuery.limit, //몇개 데이타 보여줄건지
     });
     return posts;
   }
