@@ -12,6 +12,8 @@ import { CreatePostDto } from '../dtos/createPost.dto';
 import { TagsService } from 'src/tags/providers/tags.service';
 import { PatchPostDto } from '../dtos/patchPost.dto';
 import { GetPostsDto } from '../dtos/getPosts.dto';
+import { PaginationProvider } from 'src/common/pagination/providers/pagination.provider';
+import { Paginated } from 'src/common/pagination/interfaces/paginated.interface';
 
 @Injectable()
 export class PostsService {
@@ -22,6 +24,8 @@ export class PostsService {
 
     @InjectRepository(Post)
     private readonly postsRepository: Repository<Post>,
+
+    private readonly paginationProvider: PaginationProvider,
   ) {}
 
   public async create(createPostDto: CreatePostDto) {
@@ -41,17 +45,18 @@ export class PostsService {
     return await this.postsRepository.save(post);
   }
 
-  public async findAll(postQuery: GetPostsDto, userId: string) {
-    const posts = await this.postsRepository.find({
-      relations: {
-        metaOptions: true,
-        //author: true,
-        //tags: true, //이 프로퍼티 이름들은 post 엔티티에서 가져온것.
+  public async findAll(
+    postQuery: GetPostsDto,
+    userId: string,
+  ): Promise<Paginated<Post>> {
+    let posts = await this.paginationProvider.paginateQuery(
+      {
+        limit: postQuery.limit,
+        page: postQuery.page,
       },
-
-      skip: (postQuery.page - 1) * postQuery.limit, //몇개 스킵할건지
-      take: postQuery.limit, //몇개 데이타 보여줄건지
-    });
+      this.postsRepository,
+      { author: true },
+    );
     return posts;
   }
 
