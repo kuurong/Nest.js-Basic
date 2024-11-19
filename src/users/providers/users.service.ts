@@ -17,6 +17,8 @@ import { ConfigService, ConfigType } from '@nestjs/config';
 import profileConfig from '../config/profile.config';
 import { UsersCreateManyProvider } from './users-create-many.provider';
 import { CreateManyUsersDto } from '../dtos/createManyUsers.dto';
+import { CreateUserProvider } from './create-user.provider';
+import { FindOneUserByEmailProvider } from './find-one-user-by-email.provider';
 
 /**
  * Class to connect to Users table and perform business operations
@@ -41,42 +43,15 @@ export class UsersService {
 
     // Injecting UsersCreateManyProvider
     private readonly usersCreateManyProvider: UsersCreateManyProvider,
+
+    // Injecting createUserProvider
+    private readonly createUserProvider: CreateUserProvider,
+
+    private readonly findOneUserByEmailProvider: FindOneUserByEmailProvider,
   ) {}
 
   public async createUser(createUserDto: CreateUserDto) {
-    let existingUser = undefined;
-
-    try {
-      existingUser = await this.usersRepository.findOne({
-        where: { email: createUserDto.email },
-      });
-    } catch (error) {
-      //어떤 이유로 db 연결 실패할경우 statusCode: 408
-      throw new RequestTimeoutException('Unable to process', {
-        description: 'Error connecting to the DB',
-      });
-    }
-
-    // Handle exception
-    if (existingUser) {
-      throw new BadRequestException('이미 유저가 존재해요');
-
-      //statusCode: 400
-    }
-
-    let newUser = this.usersRepository.create(createUserDto);
-    // create 는 db와 interact 하지않아서 exception handling 안해도됨
-
-    try {
-      newUser = await this.usersRepository.save(newUser);
-    } catch (error) {
-      //어떤 이유로 db 연결 실패할경우 statusCode: 408
-      throw new RequestTimeoutException('Unable to process', {
-        description: 'Error connecting to the DB',
-      });
-    }
-
-    return newUser;
+    return await this.createUserProvider.createUser(createUserDto);
   }
 
   /**
@@ -132,6 +107,10 @@ export class UsersService {
 
   public async createMany(createManyUsersDto: CreateManyUsersDto) {
     return await this.usersCreateManyProvider.createMany(createManyUsersDto);
+  }
+
+  public async findOneByEmail(email: string) {
+    return await this.findOneUserByEmailProvider.findOneByEmail(email);
   }
 
   public async test() {

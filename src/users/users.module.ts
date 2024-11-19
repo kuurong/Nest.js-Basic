@@ -8,10 +8,17 @@ import { User } from './user.entity';
 import profileConfig from './config/profile.config';
 import { ConfigModule } from '@nestjs/config';
 import { UsersCreateManyProvider } from './providers/users-create-many.provider';
+import { CreateUserProvider } from './providers/create-user.provider';
+import { FindOneUserByEmailProvider } from './providers/find-one-user-by-email.provider';
 
 @Module({
   controllers: [UsersController],
-  providers: [UsersService, UsersCreateManyProvider],
+  providers: [
+    UsersService,
+    UsersCreateManyProvider,
+    CreateUserProvider,
+    FindOneUserByEmailProvider,
+  ],
   exports: [UsersService], // PostModule 에서 쓰고싶으니까 export
   imports: [
     forwardRef(() => AuthModule),

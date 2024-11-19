@@ -14,7 +14,7 @@ export class PaginationProvider {
   public async paginateQuery<T extends ObjectLiteral>(
     paginationQuery: PaginationQueryDto,
     repository: Repository<T>,
-    relations?: object,
+    relations?: object | null,
   ): Promise<Paginated<T>> {
     // async니까 return type Promise
     let result = await repository.find({
