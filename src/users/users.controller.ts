@@ -8,6 +8,7 @@ import {
   Patch,
   ParseIntPipe,
   DefaultValuePipe,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { GetUsersParamDto } from './dtos/getUsersParam.dto';
@@ -15,6 +16,11 @@ import { PatchUserDto } from './dtos/patchUser.dto';
 import { UsersService } from './providers/users.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateManyUsersDto } from './dtos/createManyUsers.dto';
+import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guard';
+
+// @UseGuards(AccessTokenGuard)
+// means every endpoint inside this controller can only be used when a user is logged in.
+// 하지만 이방법말고 더 글로벌하게 쓰는 방법이있듬.
 
 // localhost:3000/users
 @Controller('users')
@@ -63,6 +69,8 @@ export class UsersController {
     return this.usersService.createUser(createUserDto);
   }
 
+  @UseGuards(AccessTokenGuard)
+  //Now this API endpoint is guarded so you can access only when you're authorized.
   @Post('create-many')
   public createManyUsers(@Body() createManyUsersDto: CreateManyUsersDto) {
     return this.usersService.createMany(createManyUsersDto);
