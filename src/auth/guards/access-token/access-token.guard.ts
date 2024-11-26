@@ -67,12 +67,16 @@ export class AccessTokenGuard implements CanActivate {
 
   //private method because we'll be using this method only inside this class
   private extractRequestFromHeader(request: Request): string | undefined {
-    console.log(request, 'request in extractRequestFromHeader');
+    // console.log(request, 'request in extractRequestFromHeader');
     const [_, token] = request.headers.authorization?.split(' ') ?? [];
     // 우리가 필요한건 두번쨰 토큰. 첫번째는 bearer
     // []일 경우 token 은 undefiend, 즉 authorized되지않음
 
     return token;
+  }
+
+  public hello() {
+    console.log('hellppp');
   }
 }
 

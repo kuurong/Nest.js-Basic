@@ -14,6 +14,11 @@ import { PaginationModule } from './common/pagination/pagination.module';
 import appConfig from './config/app.config'; //default로 export 하므로 {}없애도됨
 import databaseConfig from './config/db.config';
 import envValidation from './config/env.validation';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from './auth/guards/access-token/access-token.guard';
+import jwtConfig from './auth/config/jwt.config';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthenticationGuard } from './auth/guards/authentication/authentication.guard';
 
 const ENV = process.env.NODE_ENV;
 
@@ -44,11 +49,20 @@ const ENV = process.env.NODE_ENV;
         database: configService.get('database.name'),
       }),
     }),
+    ConfigModule.forFeature(jwtConfig), // AccessTokenGuard
+    JwtModule.registerAsync(jwtConfig.asProvider()), // AccessTokenGuard에서 dependency이므로 import
     TagsModule,
     MetaOptionsModule,
     PaginationModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD, //글로벌하게 가드한다.
+      useClass: AuthenticationGuard,
+    },
+    AccessTokenGuard, //AuthenticationGuard의dependency 이므로 명시
+  ],
 })
 export class AppModule {}

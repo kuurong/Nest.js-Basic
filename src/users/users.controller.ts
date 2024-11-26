@@ -17,10 +17,12 @@ import { UsersService } from './providers/users.service';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateManyUsersDto } from './dtos/createManyUsers.dto';
 import { AccessTokenGuard } from 'src/auth/guards/access-token/access-token.guard';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { AuthType } from 'src/auth/enums/auth-type.enum';
 
 // @UseGuards(AccessTokenGuard)
 // means every endpoint inside this controller can only be used when a user is logged in.
-// 하지만 이방법말고 더 글로벌하게 쓰는 방법이있듬.
+// 모든 모듈에서 가드쓰고싶으면 app.module.ts 고고
 
 // localhost:3000/users
 @Controller('users')
@@ -64,12 +66,17 @@ export class UsersController {
   }
 
   @Post()
+  //👇@SetMetaData('authType','None') 과 같다👇
+  //@Auth(AuthType.Bearer) // to assign auth types as metadata
+  // 현재 모든 엔드포인트가 protected
+  //왜냐면 defaultAuthType = AuthType.Bearer; 으로 되어이써서 위에 @Auth(AuthType.Bearer)  코드 없애도됨
+  @Auth(AuthType.None)
   public createUser(@Body() createUserDto: CreateUserDto) {
     //usersService 코드 안에 이미 async createUser 이기 때문에 여기서 async 안해도된다
     return this.usersService.createUser(createUserDto);
   }
 
-  @UseGuards(AccessTokenGuard)
+  //@UseGuards(AccessTokenGuard)
   //Now this API endpoint is guarded so you can access only when you're authorized.
   @Post('create-many')
   public createManyUsers(@Body() createManyUsersDto: CreateManyUsersDto) {

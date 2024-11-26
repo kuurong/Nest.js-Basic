@@ -14,6 +14,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePostDto } from './dtos/createPost.dto';
 import { PatchPostDto } from './dtos/patchPost.dto';
 import { GetPostsDto } from './dtos/getPosts.dto';
+// import { Auth } from 'src/auth/decorators/auth.decorator';
+// import { AuthType } from 'src/auth/enums/auth-type.enum';
 
 @Controller('posts')
 @ApiTags('Posts API')
